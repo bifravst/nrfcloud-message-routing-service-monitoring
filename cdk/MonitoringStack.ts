@@ -75,7 +75,7 @@ export class MonitoringStack extends Stack {
       handler: lambdaSources.receive.handler,
       architecture: Lambda.Architecture.ARM_64,
       runtime: Lambda.Runtime.NODEJS_20_X,
-      timeout: Duration.seconds(5),
+      timeout: Duration.minutes(15),
       memorySize: 1792,
       code: Lambda.Code.fromAsset(lambdaSources.receive.zipFile),
       description: "Receive webhooks",
