@@ -55,7 +55,7 @@ export const handler = async (
 
   for (const {
     message: { id, ts, source },
-  } of messages) {
+  } of messages ?? []) {
     const delta = Date.now() - ts;
     console.log(JSON.stringify({ id, delta }));
     (source === "mqtt" ? metricsMQTT : metricsCOAP).addMetric(
