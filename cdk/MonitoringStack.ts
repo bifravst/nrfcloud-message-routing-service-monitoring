@@ -8,10 +8,10 @@ import {
   aws_events as Events,
   aws_iam as IAM,
 } from "aws-cdk-lib";
-import type { MonitoringLambdas } from "./lambdas/MonitoringLambdas";
-import type { PackedLayer } from "./lambdas/packLayer";
-import { LambdaSource } from "./lambdas/LambdaSource";
-import { LambdaLogGroup } from "./LambdaLogGroup";
+import type { MonitoringLambdas } from "./lambdas/MonitoringLambdas.js";
+import type { PackedLayer } from "./lambdas/packLayer.js";
+import { LambdaSource } from "./lambdas/LambdaSource.js";
+import { LambdaLogGroup } from "./LambdaLogGroup.js";
 
 export class MonitoringStack extends Stack {
   public constructor(

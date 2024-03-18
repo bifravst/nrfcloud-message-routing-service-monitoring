@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { connect } from "./device/connect";
+import { connect } from "./device/connect.js";
 
 const { clientId, clientCert, caCert, privateKey } = JSON.parse(
   await fs.readFile(process.argv[process.argv.length - 1] as string, "utf-8")
