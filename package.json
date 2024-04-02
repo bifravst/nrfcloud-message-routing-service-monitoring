@@ -22,7 +22,7 @@
     "yazl": "2.5.1"
   },
   "dependencies": {
-    "@aws-lambda-powertools/metrics": "1.18.1",
+    "@aws-lambda-powertools/metrics": "2.0.3",
     "@middy/core": "5.2.4",
     "@nordicsemiconductor/from-env": "3.0.1",
     "mqtt": "5.3.6",
