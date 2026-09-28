@@ -43,6 +43,40 @@ export class MonitoringStack extends Stack {
     });
     scheduler.addTarget(new EventTargets.LambdaFunction(sendFn.fn));
 
+    const coapClientFn = new PackedLambdaFn(
+      this,
+      "coapClientFn",
+      lambdaSources.coapClient,
+      {
+        runtime: Lambda.Runtime.PROVIDED_AL2023,
+        timeout: Duration.seconds(30),
+        description: "Sends a JSON message to the nRF Cloud CoAP server",
+        environment: {},
+      },
+    );
+
+    const sendCoAPFn = new PackedLambdaFn(
+      this,
+      "sendCoAPFn",
+      lambdaSources.sendCoAP,
+      {
+        timeout: Duration.seconds(30),
+        memorySize: 1792,
+        description: "Publish a CoAP message",
+        environment: {
+          COAP_LAMBDA: coapClientFn.fn.functionName,
+        },
+        layers: [baseLayerVersion.layerVersion],
+      },
+    );
+    coapClientFn.fn.grantInvoke(sendCoAPFn.fn);
+
+    const coapScheduler = new Events.Rule(this, "coapScheduler", {
+      description: `Scheduler to health check CoAP`,
+      schedule: Events.Schedule.rate(Duration.minutes(1)),
+    });
+    coapScheduler.addTarget(new EventTargets.LambdaFunction(sendCoAPFn.fn));
+
     const receiveFn = new PackedLambdaFn(
       this,
       "receiveFn",

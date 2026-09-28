@@ -2,6 +2,8 @@
 
 ## Setup
 
+[Go](https://go.dev/) is needed to build the CoAP client lambda.
+
 ```bash
 npm ci
 npx cdk deploy
@@ -103,6 +105,21 @@ SEND_FN=`aws cloudformation describe-stack-resources --stack-name nrfcloud-messa
 aws lambda invoke --function-name $SEND_FN --log-type Tail --query LogResult --output text /dev/null | base64 -d
 # ... mqtt publish { message: { id: '...', ts: ..., source: 'mqtt' }, topic: 'prod/<team ID>/m/d/<device ID>/d2c' }
 # ... published { message: { id: '...', ts: ..., source: 'mqtt' }, topic: 'prod/<team ID>/m/d/<device ID>/d2c' }
+```
+
+## Invoke the CoAP send lambda
+
+The CoAP send lambda is also invoked every minute by a scheduler. It uses the
+same device (`device/clientId` and `device/privateKey`) to authenticate against
+nRF Cloud's CoAP server using a JWT and publishes a JSON message to
+`/msg/d2c`. To trigger it manually:
+
+```bash
+SEND_COAP_FN=`aws cloudformation describe-stack-resources --stack-name nrfcloud-message-routing-service-monitoring --query "StackResources[?ResourceType=='AWS::Lambda::Function' && starts_with(LogicalResourceId, 'sendCoAPFn')].PhysicalResourceId | [0]" --output text`
+
+aws lambda invoke --function-name $SEND_COAP_FN --log-type Tail --query LogResult --output text /dev/null | base64 -d
+# ... coap publish { messageId: '...', deviceId: '...' }
+# ... published { message: { id: '...', ts: ..., source: 'coap' } }
 ```
 
 ## Verify the destination
