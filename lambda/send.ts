@@ -1,6 +1,6 @@
 import { GetParameterCommand, SSMClient } from "@aws-sdk/client-ssm";
 import { fromEnv } from "@nordicsemiconductor/from-env";
-import { connect } from "../device/connect.js";
+import { connect } from "../device/connect.ts";
 import { randomUUID } from "node:crypto";
 
 const { stackName } = fromEnv({ stackName: "STACK_NAME" })(process.env);
@@ -11,7 +11,7 @@ const fetchParameter = async (param: string): Promise<string> => {
     await ssm.send(
       new GetParameterCommand({
         Name,
-      })
+      }),
     )
   ).Parameter?.Value;
   if (v === undefined) throw new Error(`Parameter ${Name} is not configured!`);
@@ -25,7 +25,7 @@ const [clientId, caCert, privateKey, clientCert, teamId] = (await Promise.all(
     "device/privateKey",
     "device/clientCert",
     "teamId",
-  ].map(fetchParameter)
+  ].map(fetchParameter),
 )) as [string, string, string, string, string];
 
 const connectionPromise = connect({
@@ -49,7 +49,7 @@ export const handler = async () => {
     connection.publish(topic, JSON.stringify(message), (error) => {
       if (error !== undefined) return reject(error);
       return resolve();
-    })
+    }),
   );
   console.log("published", { message, topic });
 };

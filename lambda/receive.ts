@@ -4,7 +4,7 @@ import type {
 } from "aws-lambda";
 import { GetParameterCommand, SSMClient } from "@aws-sdk/client-ssm";
 import { fromEnv } from "@nordicsemiconductor/from-env";
-import { MetricUnits, Metrics } from "@aws-lambda-powertools/metrics";
+import { MetricUnit, Metrics } from "@aws-lambda-powertools/metrics";
 
 const { stackName } = fromEnv({ stackName: "STACK_NAME" })(process.env);
 
@@ -12,7 +12,7 @@ const teamId = (
   await new SSMClient({}).send(
     new GetParameterCommand({
       Name: `/${stackName}/teamId`,
-    })
+    }),
   )
 ).Parameter?.Value;
 
@@ -27,7 +27,7 @@ const metricsCOAP = new Metrics({
 });
 
 export const handler = async (
-  event: APIGatewayProxyEventV2
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   console.log(JSON.stringify({ event }));
   if (teamId === undefined)
@@ -60,8 +60,8 @@ export const handler = async (
     console.log(JSON.stringify({ id, delta }));
     (source === "mqtt" ? metricsMQTT : metricsCOAP).addMetric(
       `receivingMessageDuration`,
-      MetricUnits.Milliseconds,
-      delta
+      MetricUnit.Milliseconds,
+      delta,
     );
   }
 
