@@ -11,8 +11,8 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@aws-sdk/client-lambda": "3.1141.0",
-    "@aws-sdk/client-ssm": "3.1141.0",
+    "@aws-sdk/client-lambda": "3.1151.0",
+    "@aws-sdk/client-ssm": "3.1151.0",
     "@bifravst/aws-cdk-lambda-helpers": "5.1.1",
     "@bifravst/run": "2.0.1",
     "@swc/core": "1.16.2",
