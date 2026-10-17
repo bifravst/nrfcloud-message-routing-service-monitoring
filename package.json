@@ -27,7 +27,7 @@
     "@aws-lambda-powertools/metrics": "2.35.0",
     "@middy/core": "7.9.2",
     "@nordicsemiconductor/from-env": "3.0.1",
-    "mqtt": "5.16.0"
+    "mqtt": "5.16.1"
   },
   "engines": {
     "node": ">=24.18.1 <25",
