@@ -26,6 +26,17 @@ const metricsCOAP = new Metrics({
   serviceName: "coap",
 });
 
+const metricsCOAPSync = new Metrics({
+  namespace: "message-routing-test",
+  serviceName: "coap-sync",
+});
+
+const metricsBySource = {
+  mqtt: metricsMQTT,
+  coap: metricsCOAP,
+  "coap-sync": metricsCOAPSync,
+};
+
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -47,7 +58,7 @@ export const handler = async (
       message: {
         id: string;
         ts: number;
-        source: "mqtt" | "coap";
+        source: keyof typeof metricsBySource;
       };
     }[];
     timestamp: string;
@@ -58,15 +69,16 @@ export const handler = async (
   } of messages ?? []) {
     const delta = Date.now() - ts;
     console.log(JSON.stringify({ id, delta }));
-    (source === "mqtt" ? metricsMQTT : metricsCOAP).addMetric(
+    metricsBySource[source]?.addMetric(
       `receivingMessageDuration`,
       MetricUnit.Milliseconds,
       delta,
     );
   }
 
-  metricsMQTT.publishStoredMetrics();
-  metricsCOAP.publishStoredMetrics();
+  for (const metrics of Object.values(metricsBySource)) {
+    metrics.publishStoredMetrics();
+  }
 
   return {
     statusCode: 201,

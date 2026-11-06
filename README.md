@@ -122,6 +122,24 @@ aws lambda invoke --function-name $SEND_COAP_FN --log-type Tail --query LogResul
 # ... published { message: { id: '...', ts: ..., source: 'coap' } }
 ```
 
+## Invoke the CoAP sync send lambda
+
+The CoAP sync send lambda is also invoked every minute by a scheduler. It
+works like the CoAP send lambda, but publishes to `/msg/d2c/sync`, which
+delivers the message synchronously to the team's sync destination (the oldest
+active destination that accepts device messages) and answers `2.01 Created`
+only once that destination accepted it. Its messages carry
+`source: 'coap-sync'` and are recorded under the `coap-sync` service. To
+trigger it manually:
+
+```bash
+SEND_COAP_SYNC_FN=`aws cloudformation describe-stack-resources --stack-name nrfcloud-message-routing-service-monitoring --query "StackResources[?ResourceType=='AWS::Lambda::Function' && starts_with(LogicalResourceId, 'sendCoAPSyncFn')].PhysicalResourceId | [0]" --output text`
+
+aws lambda invoke --function-name $SEND_COAP_SYNC_FN --log-type Tail --query LogResult --output text /dev/null | base64 -d
+# ... coap publish { messageId: '...', deviceId: '...', sync: true }
+# ... published { message: { id: '...', ts: ..., source: 'coap-sync' } }
+```
+
 ## Verify the destination
 
 Go to the Message Routing dashboard, and verify the destination: get the verification code from the receive lambda logs.

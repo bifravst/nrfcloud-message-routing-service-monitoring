@@ -27,6 +27,8 @@ type DeviceEvent struct {
 	DeviceId   string `json:"deviceId"`
 	PrivateKey string `json:"privateKey"`
 	MessageId  string `json:"messageId"`
+	// Sync delivers the message through /msg/d2c/sync, which answers only once the destination received it
+	Sync bool `json:"sync"`
 }
 
 type Message struct {
@@ -92,18 +94,23 @@ func HandleRequest(ctx context.Context, event *DeviceEvent) (*Response, error) {
 
 	log.Println("Authenticated.")
 
+	path, source := "/msg/d2c", "coap"
+	if event.Sync {
+		path, source = "/msg/d2c/sync", "coap-sync"
+	}
+
 	// Set the timestamp right before sending, so the measured duration does not include connecting and authenticating
 	msg := Message{
 		Id:     event.MessageId,
 		Ts:     time.Now().UnixMilli(),
-		Source: "coap",
+		Source: source,
 	}
 	payload, err := json.Marshal(msg)
 	check(err)
 
-	log.Printf("> /msg/d2c: %s\n", payload)
+	log.Printf("> %s: %s\n", path, payload)
 
-	msgResp, err := co.Post(ctx, "/msg/d2c", message.AppJSON, bytes.NewReader(payload))
+	msgResp, err := co.Post(ctx, path, message.AppJSON, bytes.NewReader(payload))
 	check(err)
 	checkResponse(msgResp, codes.Created)
 
