@@ -77,6 +77,31 @@ export class MonitoringStack extends Stack {
     });
     coapScheduler.addTarget(new EventTargets.LambdaFunction(sendCoAPFn.fn));
 
+    const sendCoAPSyncFn = new PackedLambdaFn(
+      this,
+      "sendCoAPSyncFn",
+      lambdaSources.sendCoAP,
+      {
+        timeout: Duration.seconds(30),
+        memorySize: 1792,
+        description: "Publish a CoAP message through the sync endpoint",
+        environment: {
+          COAP_LAMBDA: coapClientFn.fn.functionName,
+          SYNC: "true",
+        },
+        layers: [baseLayerVersion.layerVersion],
+      },
+    );
+    coapClientFn.fn.grantInvoke(sendCoAPSyncFn.fn);
+
+    const coapSyncScheduler = new Events.Rule(this, "coapSyncScheduler", {
+      description: `Scheduler to health check CoAP sync delivery`,
+      schedule: Events.Schedule.rate(Duration.minutes(1)),
+    });
+    coapSyncScheduler.addTarget(
+      new EventTargets.LambdaFunction(sendCoAPSyncFn.fn),
+    );
+
     const receiveFn = new PackedLambdaFn(
       this,
       "receiveFn",

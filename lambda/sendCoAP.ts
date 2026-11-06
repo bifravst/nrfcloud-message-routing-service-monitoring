@@ -7,6 +7,8 @@ const { stackName, coapLambda } = fromEnv({
   stackName: "STACK_NAME",
   coapLambda: "COAP_LAMBDA",
 })(process.env);
+// Deliver through /msg/d2c/sync instead of /msg/d2c
+const sync = process.env.SYNC === "true";
 const ssm = new SSMClient({});
 const lambda = new LambdaClient({});
 const fetchParameter = async (param: string): Promise<string> => {
@@ -28,7 +30,7 @@ const [deviceId, privateKey] = (await Promise.all(
 
 export const handler = async () => {
   const messageId = randomUUID();
-  console.log("coap publish", { messageId, deviceId });
+  console.log("coap publish", { messageId, deviceId, sync });
   const { Payload, FunctionError } = await lambda.send(
     new InvokeCommand({
       FunctionName: coapLambda,
@@ -37,6 +39,7 @@ export const handler = async () => {
           deviceId,
           privateKey,
           messageId,
+          sync,
         }),
       ),
     }),
