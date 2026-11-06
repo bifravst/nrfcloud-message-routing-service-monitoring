@@ -89,7 +89,7 @@ aws ssm put-parameter --overwrite --name /nrfcloud-message-routing-service-monit
 ### Connect
 
 ```bash
-node --experimental-transform-types --no-warnings connect.ts
+node  --no-warnings connect.ts
 # Connected
 ```
 
